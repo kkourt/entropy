@@ -66,6 +66,6 @@ int main(int argc, char **argv)
 		}
 	}
 
-	printf("entropy for %s <%lu->%lu>: %3.2lf\n", fname, offset, cnt, entropy);
+	printf("entropy for %s <%lu->%lu>: %6.4lf\n", fname, offset, cnt, entropy);
 	return 0;
 }
