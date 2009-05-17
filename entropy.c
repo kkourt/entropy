@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 	size = (argc>3) ? atol(argv[3]) : ~0;
 
 	for(i=0; i<256; i++) symbols[i] = 0;
-	
+
 	fd = open(fname, O_RDONLY);
 	if (fd == -1){
 		perror("open");

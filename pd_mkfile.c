@@ -1,8 +1,8 @@
 /*
- * Create a random file for a given probability distribution.  
+ * Create a random file for a given probability distribution.
  * (too slow in python)
  *
- * The probability distribution will be given in stdin and must 
+ * The probability distribution will be given in stdin and must
  * be in the form of the following example:
  * --- cut here (start) ---
  *  .5
@@ -13,10 +13,10 @@
  *  1.0
  * ---- cut here (eof) ---
  *
- * Note that the the probabilities are sorted and accumulated 
- * ( P(n) = p(n) + * P(n-1) )
+ * Note that the the probabilities are sorted and accumulated
+ * ( P(n) = p(n) + P(n-1) )
  *
- * number of probabilities must be <=256, so we can directly 
+ * number of probabilities must be <=256, so we can directly
  * map them to the char range.
  *
  */
@@ -41,8 +41,8 @@
 
 /*
  * search for the output byte for a random number in [0,1).
- * we start from the end (most wide intervals) and go 
- * all the way to the start. We could also do binary search, 
+ * we start from the end (most wide intervals) and go
+ * all the way to the start. We could also do binary search
  * or a hybrid method
  */
 unsigned char search(double *pds, int pds_len, double item)
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 	double pds[256];
 	unsigned long i;
 	unsigned char buff[BUFFSIZE];
-	
+
 	srand48(time(NULL));
 
 	if (argc < 3){
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 	char sbuff[1024];
 	for (i=0;;){
 		//printf("i=%lu\n", i);
-		if ( fgets(sbuff, BUFFSIZE, stdin) == NULL ){	
+		if ( fgets(sbuff, BUFFSIZE, stdin) == NULL ){
 			break;
 		}
 		pds[i++] = strtod(sbuff, NULL);
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	ftruncate(fd, fsize);
-	
+
 	unsigned long remaining = fsize;
 	double rand;
 	#ifdef PD_MKFILE_REPORT_RATE

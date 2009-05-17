@@ -141,11 +141,11 @@ def entropy2pd(tentropy, symbols_nr, pd=None, prob_min=__prob_min, entropy_err=.
 		raise ValueError, "entropy specified (%f) is too high" % tentropy
 	if (tentropy < entropy_min(symbols_nr,prob_min)):
 		raise ValueError, "entropy specified (%f) is too small" % tentropy
-	
+
 	#from gnuplot_simple import BarsMultiple
 	#prob_max = 1 - ((symbols_nr-1)*prob_min)
 	#bm = BarsMultiple(y_max=prob_max, y_min=prob_min)
-	
+
 	# Choose an initial probability distribution
 	if pd is None:
 		pd = e2pd_initial_pd(symbols_nr, prob_min)
@@ -188,7 +188,7 @@ def entropy2pd(tentropy, symbols_nr, pd=None, prob_min=__prob_min, entropy_err=.
 		pd.append((1-q0)*s)
 
 		iterations += 1
-	
+
 	return pd
 
 def closerint(val):
@@ -227,7 +227,7 @@ def entropy_mkfile(pd, fname, fsize, symbols_nr=256):
 	#pd = entropy2pd(entropy, symbols_nr, e2pd_rand_initial_pd(symbols_nr))
 	#for i in xrange(1,len(pd)):
 	#	pd[i] += pd[i-1]
-	
+
 	fd = os.open(fname, os.O_CREAT | os.O_RDWR)
 	os.ftruncate(fd, fsize)
 	os.fsync(fd)
@@ -257,7 +257,7 @@ def mkfile(entropy, fname, fsize, symbols_nr=256, prog="./pd_mkfile"):
 	for p in pd:
 		f.write("%30.25f\n" % p)
 	f.close()
-		
+
 def rand_graph(entropy, fname, graphs_nr=40):
 	en = entropy
 	import Gnuplot as G
@@ -281,7 +281,7 @@ if __name__ == '__main__':
 	if len(argv) < 4:
 		print "Usage %s <entropy> <fname> <fsize>" % argv[0]
 		exit(1)
-	
+
 	en = float(argv[1])
 	fname = argv[2]
 	fsize = long(argv[3])
