@@ -36,7 +36,7 @@
 #define MIN(a,b) ((a<b) ? a:b)
 
 #ifdef PD_MKFILE_REPORT_RATE
-#include "tsc.h"
+#include "timer.h"
 #endif
 
 /*
@@ -93,9 +93,9 @@ int main(int argc, char **argv)
 	unsigned long remaining = fsize;
 	double rand;
 	#ifdef PD_MKFILE_REPORT_RATE
-	tsc_t tsc;
-	tsc_init(&tsc);
-	tsc_start(&tsc);
+	xtimer_t timer;
+	timer_init(&timer);
+	timer_start(&timer);
 	#endif
 	do {
 		unsigned int s = MIN(BUFFSIZE, remaining);
@@ -116,13 +116,13 @@ int main(int argc, char **argv)
 
 		remaining -= s;
 		#ifdef PD_MKFILE_REPORT_RATE
-		tsc_pause(&tsc);
-		double secs = tsc_getsecs(&tsc);
+		timer_pause(&timer);
+		double secs = timer_secs(&timer);
 		unsigned long bytes = (fsize - remaining);
 		double Mbytes = ((double)bytes)/((double)(1024*1024));
 		double rate = Mbytes/secs;
 		printf("%lu (/%lu) in %lf secs [rate=%lf]\n", bytes, fsize, secs, rate);
-		tsc_start(&tsc);
+		timer_start(&timer);
 		#endif
 	} while (remaining > 0);
 

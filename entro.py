@@ -1,28 +1,12 @@
 from itertools import chain
 from math import log, fabs, sqrt
-from random import randint, betavariate, normalvariate, uniform, sample, random
+from random import randint, betavariate, sample, random
 from types import ListType, TupleType
 import os
 import mmap
 from time import time
 from bisect import bisect_left
 
-def uniform_pd(elems):
-	pd = [ uniform_dist(0,1) for i in xrange(elems) ]
-	s = sum(pd)
-	return [ p/s for p in pd ]
-
-def normal_pd(elems, mu, sigma):
-	pd = [ normal_dist(mu,sigma) for i in xrange(elems) ]
-	s = sum(pd)
-	return [ p/s for p in pd ]
-
-def beta_pd(elems, alpha, beta):
-	pd = [ beta_dist(alpha,beta) for i in xrange(elems) ]
-	s = sum(pd)
-	pd.sort()
-	ret = [ p/s for p in pd ]
-	return ret
 
 def pd_shuffle(pd, times, prob_min):
 	for i in xrange(times):
@@ -123,7 +107,7 @@ def _de_solve(x, s, v, err=1e-15, limit_iterations=1000000):
 			raise ValueError, "Unable to find a solution (min=%f max=%f val=%.20f sol=%.20f)" % (ymin,ymax,yval,v)
 
 def entropy2pd(tentropy, symbols_nr, pd=None, prob_min=__prob_min, entropy_err=.005):
-	""" Create a probability distribution (pd) for a set of symbols that will 
+	""" Create a probability distribution (pd) for a set of symbols that will
 	    adhere to the given entropy value
 
 		tentropy    : target entropy value
@@ -179,10 +163,6 @@ def entropy2pd(tentropy, symbols_nr, pd=None, prob_min=__prob_min, entropy_err=.
 			xmin = prob_min/s
 			xmax = a
 
-		# Note that it would be possible to choose a new de value and solve the
-		# de equation using the Bolzano theorem. The problem is that for de < 0
-		# (decreasing entropy) the fall is exponential as a->0, and thus the
-		# results are biased in the area of exponential decreasing.
 		q0 = uniform(xmin,xmax)
 		pd.append(q0*s)
 		pd.append((1-q0)*s)
@@ -197,25 +177,6 @@ def closerint(val):
 		i+= 1
 	return i
 
-def binary_search(rl, val):
-	i_min = 0
-	i_max = len(rl)
-	i_o = 0
-	while True:
-		i = i_min + ((i_max - i_min) // 2)
-		#print val, i_min, i_max, i, rl[i]
-		if i == i_o:
-			raise 
-		if rl[i] <= val:
-			if  (i == len(rl) - 1) or rl[i+1] > val:
-				return i
-			i_min = i
-		else:
-			if i == 0: 
-				return 0
-			i_max = i
-		i_o = i
-
 def e2pd_rand_initial_pd(symbols_nr):
 	 return e2pd_initial_pd(
 	           symbols_nr,
@@ -224,14 +185,9 @@ def e2pd_rand_initial_pd(symbols_nr):
 	)
 
 def entropy_mkfile(pd, fname, fsize, symbols_nr=256):
-	#pd = entropy2pd(entropy, symbols_nr, e2pd_rand_initial_pd(symbols_nr))
-	#for i in xrange(1,len(pd)):
-	#	pd[i] += pd[i-1]
-
 	fd = os.open(fname, os.O_CREAT | os.O_RDWR)
 	os.ftruncate(fd, fsize)
 	os.fsync(fd)
-	#os.lseek(fd, 0, os.SEEK_SET)
 	map = mmap.mmap(fd, fsize)
 
 	remaining = fsize
@@ -258,28 +214,10 @@ def mkfile(entropy, fname, fsize, symbols_nr=256, prog="./pd_mkfile"):
 		f.write("%30.25f\n" % p)
 	f.close()
 
-def rand_graph(entropy, fname, graphs_nr=40):
-	en = entropy
-	import Gnuplot as G
-	_g = G.Gnuplot()
-	print 'Entropy', en
-	_g("set logscale y")
-	_g("set style data linespoints")
-	_g('set terminal png size 640 480')
-
-	_initial = ("min", "max")
-	pd = []
-	for i in xrange(graphs_nr):
-		print i
-		pdi = e2pd_initial_pd(256,shuffle=randint(0,256*2),initial=sample(_initial, 1)[0])
-		pd.append(G.Data(entropy2pd(en, 256, pdi)))
-	_g("set output \'%s\'" % fname)
-	_g.plot(*pd)
-
 if __name__ == '__main__':
 	from sys import argv, exit
 	if len(argv) < 4:
-		print "Usage %s <entropy> <fname> <fsize>" % argv[0]
+		print "Usage: %s <entropy> <fname> <fsize>" % argv[0]
 		exit(1)
 
 	en = float(argv[1])
