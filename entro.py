@@ -1,12 +1,17 @@
+#!/usr/bin/env python2.5
+#
+# Create a probability distribution, with a given entropy file
+# Kornilios Kourtis <kkourt@cslab.ece.ntua.gr>
+#
+
 from itertools import chain
 from math import log, fabs, sqrt
-from random import randint, betavariate, sample, random
+from random import randint, betavariate, sample, random, uniform
 from types import ListType, TupleType
-import os
-import mmap
 from time import time
 from bisect import bisect_left
-
+import os
+import mmap
 
 def pd_shuffle(pd, times, prob_min):
 	for i in xrange(times):
