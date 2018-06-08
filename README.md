@@ -1,10 +1,10 @@
 
 FILES
 -----
-`entropy.c`       : calculate the entropy of a file
-`entro.py`        : create a file with a given entropy value
-`pd_mkfile.c`     : create a file, given the probability distribution
-`graph-entro.py`  : generate and graph different probability distributions
+- `entropy.c`       : calculate the entropy of a file
+- `entro.py`        : create a file with a given entropy value
+- `pd_mkfile.c`     : create a file, given the probability distribution
+- `graph-entro.py`  : generate and graph different probability distributions
 
 Compile:
 --------
