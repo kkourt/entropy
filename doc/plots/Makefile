@@ -5,7 +5,7 @@ all: de.eps
 
 de.eps: de.gp
 	gnuplot de.gp
-	latex2eps de__ de
+	./latex2eps de__ de
 
 
 remove_files = $(shell echo "setopt extended_glob; echo ^(Makefile|de.gp)" | zsh -s)
