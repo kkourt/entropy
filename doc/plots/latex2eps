@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ -z "$2" ]; then
+	echo "Usage $(basename $0) <tex file (without extenson)> <out file>"
+	exit 1
+fi
+
+cat > $2.tex << EOF
+\\documentclass{article}
+\\usepackage{graphicx}
+\\usepackage{MnSymbol}
+\\pagestyle{empty}
+\\begin{document}
+\include{$1}
+\\end{document}
+EOF
+
+latex $2.tex
+dvips $2.dvi -E -o $2.eps
