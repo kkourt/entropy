@@ -21,7 +21,7 @@ DEFS         = -DPD_MKFILE_REPORT_RATE
 	$(GCC) $(CFLAGS) $(INC) $(DEFS) -E $< | indent -kr > $@
 
 %: %.c
-	$(GCC) $(LIBS) $(CFLAGS) $(INC) $(DEFS) -o $@ $<
+	$(GCC) $(CFLAGS) $(INC) $(DEFS) -o $@ $< $(LIBS)
 
 
 clean:
