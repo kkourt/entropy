@@ -1,0 +1,305 @@
+\documentclass[9pt,a4paper]{article}
+
+\usepackage{graphicx}
+\usepackage[]{caption2}
+\usepackage{url}
+\usepackage{hyperref}
+
+
+\usepackage{amsmath}
+%\usepackage{MnSymbol}
+
+
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+\newcommand{\WP}[2]{\href{http://en.wikipedia.org/wiki/#1}{#2}}
+\newcommand{\Email}[1]{\href{mailto:#1}{#1}}
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lemma}[thm]{Lemma}
+%\newtheorem{prop}[thm]{Proposition}
+%\newtheorem{cor}[thm]{Corollary}
+%\newtheorem{def}[thm]{Definition}
+\newtheorem{remark}[thm]{Remark}
+%\newtheorem{axiom}[thm]{Axiom}
+%\newtheorem{exercise}[thm]{Exercise}
+
+
+%\author{Kornilios Kourtis}
+\title{Notes on Generating Probability Distributions for a given Entropy value}
+\date{}
+\author{
+    Kornilios Kourtis \\
+    \Email{kkourt@cslab.ece.ntua.gr}
+}
+%\email{kkourt@cslab.ece.ntua.gr}
+
+\begin{document}
+
+\maketitle
+
+\section{Motivation}
+
+The goal is to develop an algorithm for creating a probability distribution
+that results in a given entropy value. Ideally, the algorithm should be able to
+generate all possible probability distributions, with the same probability.
+Nevertheless, since it is not trivial to guarantee this property, we will
+insert some randomness to our algorithm to ensure some variation in the
+results.
+
+\section{Introduction}
+
+Assuming a \WP{Discrete\_probability\_distribution}{discrete probability
+distribution} $p_i$, it stands that:
+
+\begin{equation}
+\sum_{i=1}^{N}{p_i} = 1
+\label{eq:pd_sum}
+\end{equation}
+
+The expression for the \WP{Information\_entropy}{entropy} $E$ is:
+
+\begin{equation}
+    E = -\sum_{i=1}^{N}{ p_i \log{p_i} } 
+    \footnote{$p=0 \Rightarrow p\log{p} = 0$}
+    \label{eq:entropy}
+\end{equation}
+
+We will use $2$ for the base of the logarithm, which corresponds to the choice
+of {\ttfamily bit} as the unit of measurement for the value of entropy. 
+
+%Here's some python code for the calculation of entropy:
+%\begin{verbatim}
+%from math import log
+%
+%def plog2p(p):
+%    return p*log(p,2) if p != 0.0 else 0.0
+%
+%def entropy(pd):
+%    return -sum((plog2p(p) for p in pd))
+%\end{verbatim}
+
+\section{A pair for a pair}
+
+A simple  approach for the generation of a probability distribution with a
+specified entropy value is to create an algorighm that, given an the target
+entropy $E_t$, a probability distribution $pd_\rho$ and its entropy $E_\rho$,
+calculates a new probability distribution $pd_{\rho+1}$ with entropy $E_{\rho+1}$
+such that:
+
+\begin{equation}
+|E_t - E_\rho| > |E_t - E_{\rho+1}|
+\label{eq:en-conv}
+\end{equation}
+
+We consider the following approach: out of the $pd_\rho$ distribution we pick two
+probabilities $p_k$, $p_l$ and replace them with two different
+probabilities $p_k'$, $p_l'$ to form $pd_{\rho+1}$. Since $pd_{\rho+i}$
+needs to satisfy (\ref{eq:pd_sum}):
+
+\begin{equation}
+ p_k + p_l = p_k' + p_l' = \sigma  \Rightarrow
+ \left\{ \begin{array}{lll}
+          p_k &=& \alpha\, \sigma \\
+          p_l &=& (1-\alpha )\, \sigma \\
+          \\
+          p_k' &=& \beta\, \sigma \\
+          p_l' &=& (1-\beta)\, \sigma 
+ \end{array} \right\}
+\label{eq:ps}
+\end{equation}
+
+
+\newcommand{\XLogX}[1]{#1\log{#1}}
+From (\ref{eq:entropy}) the difference in entropy is:
+\begin{align*}
+\Delta E 
+ = & E_{\rho+1} - E_{\rho} \\
+ = & - \sum_{i=1}^{N}{p_i'} \log{p_i'} + \sum_{i=1}^{N}{p_i} \log{p_i}  \\
+ = & -\XLogX{p_k'} -\XLogX{p_l'} + \XLogX{p_k} + \XLogX{p_l} \\
+\stackrel{(\ref{eq:ps})}{=} 
+   & - \XLogX{\beta\sigma} - \XLogX{(1-\beta)\sigma}  
+     + \XLogX{\alpha\sigma} + \XLogX{(1-\alpha)\sigma}   
+\end{align*}
+
+Which after some simple calculations results in:
+\begin{equation}
+\Delta E = \sigma \Bigl( 
+                \XLogX{\alpha} + \XLogX{(1-\alpha)}
+                - \XLogX{\beta}  - \XLogX{(1-\beta)} 
+       \Bigr)
+\end{equation}
+
+Hence an equivalent declaration of the problem is to find an appropriate
+$\beta$ so (\ref{eq:en-conv}) is satisfied, given $\sigma$, $\alpha$.
+We consider and study the function $h$ for $\alpha,\beta \in (0,1)$:
+
+\begin{align*}
+h_\alpha(\beta) = \; & \XLogX{\alpha} + \XLogX{(1-\alpha)} - \XLogX{\beta}  - \XLogX{(1-\beta)} \\
+                = \; & g(\alpha) - g(\beta), \quad 
+                       g(x) = \XLogX{x} + \XLogX{(1-x)}
+\end{align*}
+
+
+
+\begin{remark}
+    $\beta = \alpha$ and $\beta = 1 - \alpha$ are roots of $h_\alpha(\beta)$ 
+\end{remark}
+
+\begin{lemma}
+    $h_\alpha(\beta)$ is strictly increasing for $\beta \in (0,\frac{1}{2})$,
+    strictly decreasing for $\beta \in (\frac{1}{2},1)$, has a maximum
+    for $\beta = \frac{1}{2}$ and .
+\end{lemma}
+
+We use the first derivative of the function:
+
+\begin{align*}
+    h'_\alpha(\beta) = &
+     \ 0 + \Bigl( - \XLogX{\beta}  - \XLogX{(1-\beta)} \Bigr)' \\
+     = & - \frac{1}{\ln{2}} \Bigl( 
+        \beta'\ln{\beta} + \beta\ln'{\beta} +(1-\beta)'\ln{(1-\beta)} + (1-\beta)\ln'{(1-\beta)}
+     \Bigr) \\
+     = & - \frac{1}{\ln{2}} \Bigl( 
+        \ln{\beta} + \frac{\beta}{\beta} - \ln{(1-\beta)} + \frac{1-\beta}{-(1-\beta)} \\
+      = & - \frac{1}{\ln{2}} \Bigl( 
+        \ln{\beta} + 1 - \ln{(1-\beta)} -1
+     \Bigr)
+\end{align*}
+
+Thus:
+\begin{equation}
+h'_\alpha(\beta) = \log{\frac{1-\beta}{\beta}} \Rightarrow
+    \left\{ \begin{array}{lll}
+        0 < \beta < \frac{1}{2} & \Rightarrow & h'_\alpha(\beta) > 0 \\
+        \beta = \frac{1}{2} &\Rightarrow& h'_\alpha(\beta) = 0 \\
+        \frac{1}{2} < \beta < 1 &\Rightarrow& h'_\alpha(\beta) < 0 
+    \end{array} \right.
+\end{equation}
+
+It should be noted that we can focus on area $(0,\frac{1}{2}]$ for $\alpha,
+\beta$, since we can choose $p_k<p_l$ and $p_k'<p_l'$ without loss of
+generality. This is reflected in the $h$ function by the symmetry resulting
+from: $h_a(b) = h_{1-a}(b) = h_a(1-b) = h_{1-a}(1-b)$. Figure~\ref{fig:de-plot}
+presents plots for a number of $h$ functions with different $\alpha$ values.
+Note that for $\alpha = 0.5$ the entropy value can't be increased since the two
+symbols have the same probability and we can't insert more randomness.
+
+\begin{figure}[h]
+    \includegraphics{plots/de}
+    \caption{Plots of the $h_\alpha$ function for different values of $\alpha$}
+    \label{fig:de-plot}
+\end{figure}
+
+The range of the entropy difference that results from a pair substition is
+\begin{equation}
+ \lim_{\beta \to 0}h_a(\beta) < \frac{\Delta E}{\sigma} <  h_a(0.5) \Rightarrow 
+ g(\alpha) < \frac{\Delta E}{\sigma} < g(\alpha) + 1
+ \label{eq:de-range}
+\end{equation}
+
+
+In theory, at each step we can choose a new entropy value \( E_{\rho+1} \) that
+satisfies both (\ref{eq:en-conv})  (convergence) and (\ref{eq:de-range})
+(existence) and calculate the corresponding $\beta$ value. To compute the
+$\beta$ value we need to solve \( h_a(\beta) = {\Delta E}/\sigma \). A simple
+approach is to use binary search, since $h_a$ is strictly increasing. 
+
+In practice, however, we use a more efficient approach and choose a $\beta$
+value from the range $(0,\alpha)$ if $E_\rho > E_t$ and from the range
+$(\alpha,0.5)$ if  $E_\rho < E_t$. The choice of the $\beta$ value is random
+(uniformly), in order to add some randomness to the results.
+
+An important aspect of this method is the choice of the initial pair to
+replace. There are two contradictory properties of the selection process:
+convergence and variation. The process should be made fast enough to be of
+practical value and slow enough to allow for variation inserted in the results.
+Intuitively, probabilities close arithmetically are good candidates for
+decreasing the entropy, while the opposite stands for probabilities with large
+difference.
+
+The (current) implementation is done (mostly) in python and can be found in
+\url{http://www.cslab.ece.ntua.gr/~kkourt/src/entropy/}. It uses the Beta
+distribution to select the initial pair. The parameters of the distribution
+($\alpha, \beta$) are chosen randomly for a number of iterations. 
+
+%If we need to increase the entropy we 
+%use the pair $(\alpha, \beta)$
+
+%\section{Parametric distributions}
+%\newcommand{\M}{\mathcal{M}}
+%\newcommand{\K}{\mathcal{K}}
+%
+%An alternative approach to create a discrete probability distribution with a
+%given entropy value is to use a parameteric distribution. Values generated from
+%this distribution need to satisfy  (\ref{eq:pd_sum}), so we divide them by
+%their sum. If the values generated are $q_i$ for $1 \leq i \leq N$, then:
+%\begin{equation*}
+%    p_i = \frac{q_i}{\M}, 
+%        \ \ \ \M = \sum\limits_{j=1}^{N}{q_j},
+%        \ \ \ 1 \leq i \leq N
+%\end{equation*}
+%
+%is a valid probability distribution, and its entropy value is:
+%\begin{align*}
+%    E = & - \sum\limits_{i=1}^{N}{\XLogX{p_i}} \\
+%      = & - \sum\limits_{i=1}^{N}{\XLogX{\frac{q_i}{\M}}} \\
+%      = & - \frac{1}{\M} \left( 
+%                \sum\limits_{i=1}^{N}{
+%                    \left( \XLogX{q_i} - q_i\log{\M} \right)
+%                }
+%            \right) \\
+%      = & - \frac{1}{\M} \left( 
+%                \sum\limits_{i=1}^{N}{ \XLogX{q_i} }
+%              - \sum\limits_{i=1}^{N}{ q_i\log{\M} }
+%            \right) \\
+%      = & - \frac{1}{\M} \left( 
+%                \sum\limits_{i=1}^{N}{ \XLogX{q_i} }
+%              - \log{\M}\sum\limits_{i=1}^{N}{ q_i }
+%            \right) \\
+%      = & \log{\M} - \frac{1}{\M}\sum\limits_{i=0}^{N}{ \XLogX{q_i} }
+%\end{align*}
+%Thus:
+%\begin{equation}
+%      E = \log{\M} - \frac{\K}{\M}, \quad
+%      \M = \sum\limits_{j=1}^{N}{q_j}, \quad 
+%      \K = \sum\limits_{i=0}^{N}{ \XLogX{q_i} } 
+%\label{eq:mk}
+%\end{equation}
+%
+%To approximate $\M$ and $\K$ we will calculate their
+%\WP{Expected\_Value}{expected value}, for each distribtion. The expected value
+%of an arbitrary function $g(X)$, for random variable $X$ is:
+%\[
+%    E(g(x)) = \left[ g(x) \right] = \int_{-\infty}^{\infty} \! g(x)f(x) \, dx
+%\]
+%
+%where $f(x)$ is the \WP{Probability\_density\_function}{probability density
+%function} of the random variable.
+%
+%\subsection{Uniform distribution}
+%
+%We consider a \WP{Uniform\_distribution\_(continuous)}{uniform distribution} in
+%$(0,1)$. The probability density function is $f_u(x) = 1$ in $(0,1)$, and the
+%mean is $1/2$. Hence from \ref{eq:mk}:
+%
+%\[
+%\left[ \M \right] = \left[ \sum\limits_{i=1}^{N} n_i \right] 
+%                   = \sum\limits_{i=1}^{N}{ \left[ n_i \right] }
+%                   = \frac{N}{2}
+%\]
+%and
+%\[
+%\left[ \K \right]  \quad = \left[ \sum\limits_{i=1}^{N} \XLogX{n_i} \right]  
+%                         =   \sum\limits_{i=1}^{N} \left[ \XLogX{n_i} \right] 
+%                         =  N \int\limits_0^1 \! \XLogX{n} \, dn
+%                         = \frac{-N}{4\ln2}
+%\]
+%
+%\subsection{Standard distribution}
+%\subsection{Beta distribution}
+
+\end{document}
