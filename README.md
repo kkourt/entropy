@@ -1,4 +1,7 @@
 
+The source for notes on this are under `doc/`, and the pdf version can be found
+in: http://www.kkourt.io/misc/entropy.pdf.
+
 FILES
 -----
 - `entropy.c`       : calculate the entropy of a file
